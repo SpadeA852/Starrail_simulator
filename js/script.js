@@ -5,6 +5,19 @@ alert("Hello World");
 var interval;
 var speed;
 var round_entry;
+var CharacterE ={
+  'c1': 0,
+  'c2': 0,
+  'c3': 0,
+  'c4': 0,
+};
+var CharacterA ={
+  'c1': 0,
+  'c2': 0,
+  'c3': 0,
+  'c4': 0,
+};
+
 var widths = {
   'myInput': 0,
   'myInput1': 0,
@@ -40,7 +53,6 @@ function increaseWidth(progressBar) {
 
     if (w >= 100) {
       progressBar.style.transition = 'width 0s';
-      w = 0;
       progressBar.style.width = w + '%';
       var met = false;
       var index;
@@ -71,29 +83,51 @@ function increaseWidth(progressBar) {
       }
       if (met == true)
       {
-        pause = true
-        Swal.fire({
-          title: "Character " + index + "'s Turn",
-          text: 'Pick Your Movement',
-          showCancelButton: true,
-          confirmButtonText: 'E',
-          cancelButtonText: 'A',
-          allowOutsideClick: false,
-          allowEscapeKey: false,
-          allowEnterKey: false
-        }).then((result) => {
-            if (result.isConfirmed) {
-              pause = false
-              points.innerHTML = parseInt(points.innerHTML) - 1;
-            }
-            else
-            {
-              pause = false
-              points.innerHTML = parseInt(points.innerHTML) + 1;
-            }
-        });
+        var checkbox = document.getElementById('myCheckbox');
+        if (checkbox.checked == true)
+        {
+          progressBar.style.width = w + '%';
+          pause = true
+          w = 0;
+          Swal.fire({
+            title: "Character " + index + "'s Turn",
+            text: 'Pick Your Movement',
+            showCancelButton: true,
+            confirmButtonText: 'E',
+            cancelButtonText: 'A',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false
+          }).then((result) => {
+              if (result.isConfirmed) {
+                pause = false;
+                progressBar.style.width = w + '%';
+                myData[index-1].value += CharacterE["c"+index];
+                points.innerHTML = parseInt(points.innerHTML) - 1;
+                chart.data.labels = myData.map(bar => bar.name);
+                chart.data.datasets[0].data = myData.map(bar => bar.value);
+                chart.update();
+              }
+              else
+              {
+                pause = false;
+                w = 0;
+                progressBar.style.width = w + '%';
+                myData[index-1].value += CharacterA["c"+index];
+                points.innerHTML = parseInt(points.innerHTML) + 1;
+                chart.data.labels = myData.map(bar => bar.name);
+                chart.data.datasets[0].data = myData.map(bar => bar.value);
+                chart.update();
+              }
+          });
+        }
+        else{
+          w = 0;
+          progressBar.style.width = w + '%';
+        }
       }
       round_entry.innerHTML = parseInt(round_entry.innerHTML) + 1;
+
       
     } else {
       progressBar.style.transition = 'width 0.3s linear';
@@ -211,6 +245,15 @@ document.addEventListener('DOMContentLoaded', function() {
   simulateProgress();
 });
 
+
+var myChart;
+var chart; 
+let myData = [
+  {name: "Character1", value: 0},
+  {name: "Character2", value: 0},
+  {name: "Character3", value: 0},
+  {name: "Character4", value: 0}
+];
 document.addEventListener('DOMContentLoaded', function() {
   // Function to simulate loading progress
   function simulateProgress() {
@@ -226,3 +269,121 @@ document.addEventListener('DOMContentLoaded', function() {
   // Call the simulateProgress function to start the loading
   simulateProgress();
 });
+document.addEventListener('DOMContentLoaded', function() {
+  // Function to simulate loading progress
+  myChart = document.getElementById('myChart').getContext('2d');
+
+  // Assuming you have an array like this for your data:
+
+  
+  chart = new Chart(myChart, {
+      type: 'pie',  // Specify that you want a pie chart
+      data: {
+          // Map the names and values to the labels and data arrays
+          labels: myData.map(bar => bar.name),
+          datasets: [{
+              data: myData.map(bar => bar.value),
+              // Add some colors for each section of the pie chart
+              backgroundColor: ['red', 'blue', 'yellow', 'green']
+          }]
+      },
+      options: {}
+  });
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('csvFile').addEventListener('change', function(e) {
+      var file = e.target.files[0];
+      var reader = new FileReader();
+
+      reader.onload = function(e) {
+          var contents = e.target.result;
+          var lines = contents.split('\n');
+          var line_number = 0;
+          var parts;
+          lines.forEach(function(line) {
+            if (line_number == 2)
+            {
+              parts = line.split(',');
+              CharacterE["c1"] = parts[12];
+            }
+            else if (line_number == 4)
+            {
+              parts = line.split(',');
+              CharacterA["c1"] = parts[12];
+            }
+            else if (line_number == 6)
+            {
+              parts = line.split(',');
+              CharacterE["c2"] = parts[12];
+            }
+            else if (line_number == 8)
+            {
+              parts = line.split(',');
+              CharacterA["c2"] = parts[12];
+            }
+
+            line_number ++;
+          });
+
+      };
+
+      reader.readAsText(file);
+  });
+});
+
+function reset(){
+  myData = [
+    {name: "Character1", value: 0},
+    {name: "Character2", value: 0},
+    {name: "Character3", value: 0},
+    {name: "Character4", value: 0}
+  ];
+  
+  widths = {
+    'myInput': 0,
+    'myInput1': 0,
+    'myInput2': 0,
+    'myInput3': 0
+  };
+  chart.data.labels = myData.map(bar => bar.name);
+  chart.data.datasets[0].data = myData.map(bar => bar.value);
+  chart.update();
+  points = 3;
+  var round_entry;
+  var bar;
+  for (let i = 1; i <= 4; i++)
+  {
+    if (i == 1)
+      bar = document.getElementById("progress");
+    else
+      bar = document.getElementById("progress" + (i-1).toString());
+    bar.style.transition = 'width 0s';
+    bar.style.width = 0 + '%';
+    bar.style.transition = 'width 0.3s linear';
+    round_entry = document.getElementById('v' + i.toString());
+    round_entry.innerHTML = 0;
+  }
+};
+
+var button;
+function pause2(){
+  pause = true;
+  button = document.getElementById("pause");
+  button.onclick = continue2;
+  button.textContent = "Continue";
+};
+
+function continue2(){
+  pause = false;
+  button = document.getElementById("pause");
+  button.onclick = pause2;
+  button.textContent = "Pause";
+
+
+}
+
+
+
+
