@@ -102,7 +102,7 @@ function increaseWidth(progressBar) {
               if (result.isConfirmed) {
                 pause = false;
                 progressBar.style.width = w + '%';
-                myData[index-1].value += CharacterE["c"+index];
+                myData[index-1].value += parseFloat(CharacterE["c"+index]);
                 points.innerHTML = parseInt(points.innerHTML) - 1;
                 chart.data.labels = myData.map(bar => bar.name);
                 chart.data.datasets[0].data = myData.map(bar => bar.value);
@@ -113,7 +113,7 @@ function increaseWidth(progressBar) {
                 pause = false;
                 w = 0;
                 progressBar.style.width = w + '%';
-                myData[index-1].value += CharacterA["c"+index];
+                myData[index-1].value += parseFloat(CharacterA["c"+index]);
                 points.innerHTML = parseInt(points.innerHTML) + 1;
                 chart.data.labels = myData.map(bar => bar.name);
                 chart.data.datasets[0].data = myData.map(bar => bar.value);
@@ -350,7 +350,7 @@ function reset(){
   chart.data.labels = myData.map(bar => bar.name);
   chart.data.datasets[0].data = myData.map(bar => bar.value);
   chart.update();
-  points = 3;
+  document.getElementById('points').innerHTML = 3;
   var round_entry;
   var bar;
   for (let i = 1; i <= 4; i++)
